@@ -1,60 +1,76 @@
 import 'package:flutter/material.dart';
-import './questao.dart';
-import './resposta.dart';
+import './questionario.dart';
+import './resultado.dart';
 
-void main() => runApp(const PerguntaApp()); // main
+void main() => runApp(const PerguntaApp());
 
 class _PerguntaAppState extends State<PerguntaApp> {
-  // classe privada
-
-  var _perguntaSelecionada = 0; // atributo privado
-  final _perguntas = const [ // variavel constante que contem uma lista de perguntas
+  var _perguntaSelecionada = 0;
+  var _pontuacaoTotal = 0;
+  final _perguntas = const [
     {
       'texto': 'Qual é a sua cor favorita?',
-      'respostas': ['Preto', 'Azul', 'Verde', 'Branco'],
+      'respostas': [
+        {'texto': 'Preto', 'pontuacao': 10},
+        {'texto': 'Vermelho', 'pontuacao': 5},
+        {'texto': 'Verde', 'pontuacao': 3},
+        {'texto': 'Branco', 'pontuacao': 1},
+      ],
     },
     {
       'texto': 'Qual é o seu animal favorito?',
-      'respostas': ['Leão', 'Tigre', 'Urso', 'Águia'],
+      'respostas': [
+        {'texto': 'Coelho', 'pontuacao': 10},
+        {'texto': 'Cobra', 'pontuacao': 5},
+        {'texto': 'Elefante', 'pontuacao': 3},
+        {'texto': 'Leão', 'pontuacao': 1},
+      ],
     },
     {
-      'texto': 'Qual seu estilo de música preferido?',
-      'respostas': ['Rock', 'Pop', 'Eletrônica', 'Hip Hop'],
+      'texto': 'Qual é o seu instrutor favorito?',
+      'respostas': [
+        {'texto': 'Leo', 'pontuacao': 10},
+        {'texto': 'Maria', 'pontuacao': 5},
+        {'texto': 'João', 'pontuacao': 3},
+        {'texto': 'Pedro', 'pontuacao': 1},
+      ],
     }
   ];
 
-  void _responder() { // metodo que atualiza o estado
-    if (temPerguntaSelecionada){
+  void _responder(int pontuacao) {
+    if (temPerguntaSelecionada) {
       setState(() {
-      _perguntaSelecionada++; // indice das perguntas. Irá pular para proxima pergunta
+        _perguntaSelecionada++;
+        _pontuacaoTotal += pontuacao;
       });
     }
   }
+  
+  void _reiniciarQuestionario() {
+    setState(() {
+      _perguntaSelecionada = 0;
+      _pontuacaoTotal = 0;
+    });
+  }
 
-  bool get temPerguntaSelecionada{
+  bool get temPerguntaSelecionada {
     return _perguntaSelecionada < _perguntas.length;
   }
 
   @override
   Widget build(BuildContext context) {
-
-    List<String> respostas = temPerguntaSelecionada ? _perguntas[_perguntaSelecionada].cast()['respostas'] : [];
-
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
           title: const Text('Perguntas'),
         ),
-        body: temPerguntaSelecionada ? Column(
-          children: [
-            Questao(_perguntas[_perguntaSelecionada]['texto'].toString()),
-            ...respostas.map((t) => Resposta(t, _responder)).toList(),
-          ],
-        ) : Center(
-          child: Text('Parabéns!',
-          style: TextStyle(fontSize: 28),
-          ),
-        ),
+        body: temPerguntaSelecionada
+            ? Questionario(
+                perguntas: _perguntas,
+                perguntaSelecionada: _perguntaSelecionada,
+                quandoResponder: _responder,
+              )
+            : Resultado(_pontuacaoTotal, _reiniciarQuestionario),
       ),
     );
   }
